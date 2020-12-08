@@ -1,0 +1,64 @@
+{
+  "name": "WhenFile",
+  "displayName": "When File",
+  "description": "Change color or theme based on file path",
+  "publisher": "rioj7",
+  "license": "MIT",
+  "version": "0.1.0",
+  "engines": {"vscode": "^1.49.3"},
+  "categories": ["Other"],
+  "keywords": ["change","theme","color","files","multi-root ready"],
+  "icon": "images/icon.png",
+  "galleryBanner": {"color": "#000080", "theme": "dark"},
+  "activationEvents": [ "*" ],
+  "contributes": {
+    "configuration": {
+      "title": "When File",
+      "properties": {
+        "whenFile.change": {
+          "type": "object",
+          "scope": "resource",
+          "default": {},
+          "description": "What needs to be changed or for which path",
+          "properties": {
+            "theme": {
+              "type": "string",
+              "description": "name of the theme"
+            },
+            "workbenchColor": {
+              "type": "object",
+              "description": "which workbench colors should be changed",
+              "default": {},
+              "additionalProperties": { "type": "string", "format": "color-hex" }
+            }
+          },
+          "additionalProperties": {
+            "type": "object",
+            "description": "file path regex",
+            "properties": {
+              "theme": {
+                "type": "string",
+                "description": "name of the theme"
+              },
+              "workbenchColor": {
+                "type": "object",
+                "description": "which workbench colors should be changed",
+                "default": {},
+                "additionalProperties": { "type": "string", "format": "color-hex" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "main": "./extension.js",
+  "homepage": "https://github.com/rioj7/whenFile",
+  "bugs": {
+    "url": "https://github.com/rioj7/whenFile/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rioj7/whenFile.git"
+  }
+}
