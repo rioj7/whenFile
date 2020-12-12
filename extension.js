@@ -18,16 +18,33 @@ function activate(context) {
       }
     }
   };
+  class WorkbenchColor {
+    constructor() {
+      this.dirty = false;
+      this.workbenchColor = {};
+      const inspect = vscode.workspace.getConfiguration().inspect(colorCustomizationSection);
+      if (inspect && isObject(inspect.workspaceValue)) {
+        copyProperties(inspect.workspaceValue, this.workbenchColor);
+      }
+    }
+    removeColors(colors) {
+      let workbenchColor = {};
+      copyProperties(this.workbenchColor, workbenchColor, colors);
+      this.workbenchColor = workbenchColor;
+      this.dirty = true;
+    }
+    addColors(colors) {
+      copyProperties(colors, this.workbenchColor);
+      this.dirty = true;
+    }
+  }
   async function updateColorCustomization(customColors) {
     await vscode.workspace.getConfiguration().update(colorCustomizationSection, customColors, vscode.ConfigurationTarget.Workspace);
   }
-  async function handleEditor(editor) {
-    const inspect = vscode.workspace.getConfiguration().inspect(colorCustomizationSection);
-    if (inspect && isObject(inspect.workspaceValue) && previousChange[workbenchColorName]) {
-      let workbenchColor = {};
-      copyProperties(inspect.workspaceValue, workbenchColor, previousChange[workbenchColorName]);
+  function _handleEditor(editor, colorUpdate) {
+    if (previousChange[workbenchColorName]) {
+      colorUpdate.removeColors(previousChange[workbenchColorName]);
       previousChange[workbenchColorName] = undefined;
-      await updateColorCustomization(workbenchColor);
     }
     if (!editor) { return; }
     function updateChange(newChange, changeFor) {
@@ -73,8 +90,15 @@ function activate(context) {
       newChange = updateChange(newChange, change[key]);
     }
     if (newChange[workbenchColorName]) {
-      await updateColorCustomization(newChange[workbenchColorName]);
+      colorUpdate.addColors(newChange[workbenchColorName]);
       previousChange[workbenchColorName] = newChange[workbenchColorName];
+    }
+  }
+  async function handleEditor(editor) {
+    let colorUpdate = new WorkbenchColor();
+    _handleEditor(editor, colorUpdate);
+    if (colorUpdate.dirty) {
+      await updateColorCustomization(colorUpdate.workbenchColor);
     }
   }
   context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor( handleEditor ));
