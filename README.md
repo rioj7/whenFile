@@ -4,10 +4,15 @@ If you have sub projects in your workspace (`client` and `server`) or a Multi Ro
 
 # Extension Settings
 
-* `whenFile.change`: What to change depending on the location of the current file. It is an object with the following fields:
-    * `workbenchColor`: an object with the color names and values to change for all files where this setting applies.
-    * `file path Regular Expression`: for which file path do we change the `workbenchColor`. It is an object with the following fields:
-        * `workbenchColor`: an object with the color names and values to change
+* `whenFile.change` : What to change depending on the location of the current file. It is an object with the following properties:
+    * `workbenchColor` : an object with the color names and values to change for all files where this setting applies.
+    * `file path Regular Expression` : for which file path do we change the `workbenchColor`. It is an object with the following properties:
+        * `workbenchColor` : an object with the color names and values to change
+    * `byLanguageId` : on object where the key is a [languageId](https://code.visualstudio.com/docs/languages/identifiers)
+        * the value for a languageId is an object with the following properties:
+            * `workbenchColor` : an object with the color names and values to change
+
+All properties are optional.
 
 The file path Regular Expression is searched in the full file path. You just need to specify the discriminating part, folder or file extension.
 
@@ -29,6 +34,18 @@ You have to specify the discriminating parts of the file paths
 
 ```
   "whenFile.change": {
+    "byLanguageId": {
+      "python": {
+        "workbenchColor": {
+          "editor.background": "#ddddff"
+        }
+      },
+      "html": {
+        "workbenchColor": {
+          "editor.background": "#ddffdd"
+        }
+      }
+    },
     "/projects/server/": {
       "workbenchColor": {
         "activityBar.background": "#509050"

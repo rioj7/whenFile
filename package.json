@@ -4,7 +4,7 @@
   "description": "Change color or theme based on file path",
   "publisher": "rioj7",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {"vscode": "^1.49.3"},
   "categories": ["Other"],
   "keywords": ["change","theme","color","files","multi-root ready"],
@@ -30,6 +30,27 @@
               "description": "which workbench colors should be changed",
               "default": {},
               "additionalProperties": { "type": "string", "format": "color-hex" }
+            },
+            "byLanguageId": {
+              "type": "object",
+              "description": "change based on languageId of the editor",
+              "default": {},
+              "additionalProperties": {
+                "type": "object",
+                "description": "for this languageId change",
+                "properties": {
+                  "theme": {
+                    "type": "string",
+                    "description": "name of the theme"
+                  },
+                  "workbenchColor": {
+                    "type": "object",
+                    "description": "which workbench colors should be changed",
+                    "default": {},
+                    "additionalProperties": { "type": "string", "format": "color-hex" }
+                  }
+                }
+              }
             }
           },
           "additionalProperties": {
