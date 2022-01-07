@@ -4,10 +4,10 @@
   "description": "Change color or theme based on file path",
   "publisher": "rioj7",
   "license": "MIT",
-  "version": "0.3.0",
-  "engines": {"vscode": "^1.49.3"},
+  "version": "0.4.0",
+  "engines": {"vscode": "^1.55.0"},
   "categories": ["Other"],
-  "keywords": ["change","theme","color","files","multi-root ready"],
+  "keywords": ["change","theme","color","files","multi-root ready","dirty"],
   "icon": "images/icon.png",
   "galleryBanner": {"color": "#000080", "theme": "dark"},
   "activationEvents": [ "*" ],
@@ -31,6 +31,12 @@
               "default": {},
               "additionalProperties": { "type": "string", "format": "color-hex" }
             },
+            "whenDirty": {
+              "type": "object",
+              "description": "which workbench colors should be changed when the file is dirty (not saved)",
+              "default": {},
+              "additionalProperties": { "type": "string", "format": "color-hex" }
+            },
             "byLanguageId": {
               "type": "object",
               "description": "change based on languageId of the editor",
@@ -46,6 +52,12 @@
                   "workbenchColor": {
                     "type": "object",
                     "description": "which workbench colors should be changed",
+                    "default": {},
+                    "additionalProperties": { "type": "string", "format": "color-hex" }
+                  },
+                  "whenDirty": {
+                    "type": "object",
+                    "description": "which workbench colors should be changed when the file is dirty (not saved)",
                     "default": {},
                     "additionalProperties": { "type": "string", "format": "color-hex" }
                   }
@@ -64,6 +76,12 @@
               "workbenchColor": {
                 "type": "object",
                 "description": "which workbench colors should be changed",
+                "default": {},
+                "additionalProperties": { "type": "string", "format": "color-hex" }
+              },
+              "whenDirty": {
+                "type": "object",
+                "description": "which workbench colors should be changed when the file is dirty (not saved)",
                 "default": {},
                 "additionalProperties": { "type": "string", "format": "color-hex" }
               }

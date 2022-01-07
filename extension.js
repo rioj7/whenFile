@@ -4,10 +4,15 @@ const path = require('path');
 function activate(context) {
   const extensionShortName = 'whenFile';
   const colorCustomizationSection = 'workbench.colorCustomizations';
+  const themeCustomizationSection = 'workbench.colorTheme';
   const themeName = 'theme';
   const workbenchColorName = 'workbenchColor';
+  const workbenchColorNameWhenDirty = 'whenDirty';
   const byLanguageIdName = 'byLanguageId';
   let previousChange = {};
+  let editorWasDirty = false;
+  let editorPath = undefined; // we get change events for strange documents (/workbench-colors)
+  let whenDirtyColors = undefined; // which colors to change
   const isObject = obj => typeof obj === 'object';
   const getProperty = (obj, prop, deflt) => { return obj.hasOwnProperty(prop) ? obj[prop] : deflt; };
   const copyProperties = (src, dest, excludeKeys) => {
@@ -41,41 +46,55 @@ function activate(context) {
   async function updateColorCustomization(customColors) {
     await vscode.workspace.getConfiguration().update(colorCustomizationSection, customColors, vscode.ConfigurationTarget.Workspace);
   }
+  /** @param {vscode.TextEditor} editor */
   function _handleEditor(editor, colorUpdate) {
     if (previousChange[workbenchColorName]) {
       colorUpdate.removeColors(previousChange[workbenchColorName]);
       previousChange[workbenchColorName] = undefined;
     }
+    if (previousChange[workbenchColorNameWhenDirty]) {
+      colorUpdate.removeColors(previousChange[workbenchColorNameWhenDirty]);
+      previousChange[workbenchColorNameWhenDirty] = undefined;
+    }
     if (!editor) { return; }
+    function updateColorChange(obj, changeFor, propertyName) {
+      let workbenchColorFor = getProperty(changeFor, propertyName);
+      if (workbenchColorFor) {
+        if (!obj) { obj = {}; }
+        let workbenchColorNew = {};
+        copyProperties(obj, workbenchColorNew); // make sure it is not a config proxy object
+        copyProperties(workbenchColorFor, workbenchColorNew);
+        obj = workbenchColorNew;
+      }
+      return obj;
+    }
     function updateChange(newChange, changeFor) {
       if (!changeFor) { return newChange; }
       let theme = newChange[themeName];
       let workbenchColor = newChange[workbenchColorName];
+      let workbenchColorWhenDirty = newChange[workbenchColorNameWhenDirty];
 
       let themeFor = getProperty(changeFor, themeName);
       if (themeFor) { theme = themeFor; }
-      let workbenchColorFor = getProperty(changeFor, workbenchColorName);
-      if (workbenchColorFor) {
-        if (!workbenchColor) { workbenchColor = {}; }
-        let workbenchColorNew = {};
-        copyProperties(workbenchColor, workbenchColorNew); // make sure it is not a config proxy object
-        copyProperties(workbenchColorFor, workbenchColorNew);
-        workbenchColor = workbenchColorNew;
-      }
+      workbenchColor = updateColorChange(workbenchColor, changeFor, workbenchColorName);
+      workbenchColorWhenDirty = updateColorChange(workbenchColorWhenDirty, changeFor, workbenchColorNameWhenDirty);
 
       newChange = {};
       newChange[themeName] = theme;
       newChange[workbenchColorName] = workbenchColor;
+      newChange[workbenchColorNameWhenDirty] = workbenchColorWhenDirty;
       return newChange;
     }
     let document = editor.document;
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
     if (!workspaceFolder) return;
+    editorPath = document.uri.path;
     let config = vscode.workspace.getConfiguration(extensionShortName, workspaceFolder.uri);
     let change = config.get('change');
     let newChange = {};
     newChange[themeName] = getProperty(change, themeName);
     newChange[workbenchColorName] = getProperty(change, workbenchColorName);
+    newChange[workbenchColorNameWhenDirty] = getProperty(change, workbenchColorNameWhenDirty);
     let filePath = document.uri.path;
     let languageId = document.languageId;
     for (const key in change) {
@@ -89,19 +108,56 @@ function activate(context) {
       if (filePath.match(new RegExp(key, "mi")) === null) { continue; }
       newChange = updateChange(newChange, change[key]);
     }
-    if (newChange[workbenchColorName]) {
-      colorUpdate.addColors(newChange[workbenchColorName]);
-      previousChange[workbenchColorName] = newChange[workbenchColorName];
+    whenDirtyColors = newChange[workbenchColorNameWhenDirty];
+    let newWorkbenchColors = newChange[workbenchColorName];
+    if (newWorkbenchColors) {
+      colorUpdate.addColors(newWorkbenchColors);
+      previousChange[workbenchColorName] = newWorkbenchColors;
     }
   }
+  var insideHandleEditor = false;
+  var insideHandleDirty = false;
+  /** @param {vscode.TextDocument} document */
+  async function _handleDirty(document) {
+    if (!whenDirtyColors) { return; }
+    if (insideHandleDirty) { return; }
+    if (document.uri.path !== editorPath) { return; }
+    let isDirty = document.isDirty;
+    if (editorWasDirty === isDirty) { return; }
+    insideHandleDirty = true;
+    let colorUpdate = new WorkbenchColor();
+    if (isDirty) {
+      colorUpdate.addColors(whenDirtyColors);
+      previousChange[workbenchColorNameWhenDirty] = whenDirtyColors;
+    } else {
+      colorUpdate.removeColors(whenDirtyColors);
+      previousChange[workbenchColorNameWhenDirty] = undefined;
+    }
+    editorWasDirty = isDirty; // we get multiple change events
+    await updateColorCustomization(colorUpdate.workbenchColor);
+    insideHandleDirty = false;
+  }
+  /** @param {vscode.TextDocument} document */
+  async function handleDirty(document) {
+    if (insideHandleEditor) { return; }
+    _handleDirty(document);
+  }
   async function handleEditor(editor) {
+    insideHandleEditor = true;
+    editorPath = undefined;
     let colorUpdate = new WorkbenchColor();
     _handleEditor(editor, colorUpdate);
     if (colorUpdate.dirty) {
       await updateColorCustomization(colorUpdate.workbenchColor);
     }
+    if (editor) {
+      editorWasDirty = false;
+      await _handleDirty(editor.document);
+    }
+    insideHandleEditor = false;
   }
   context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor( handleEditor ));
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument( async e => { await handleDirty(e.document); } ));
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration( async configevent => {
     let editor = vscode.window.activeTextEditor;
     if (!editor) return;

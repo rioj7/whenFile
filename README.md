@@ -6,11 +6,14 @@ If you have sub projects in your workspace (`client` and `server`) or a Multi Ro
 
 * `whenFile.change` : What to change depending on the location of the current file. It is an object with the following properties:
     * `workbenchColor` : an object with the color names and values to change for all files where this setting applies.
+    * `whenDirty` : an object with the color names and values to change when the file is dirty (not saved).
     * `file path Regular Expression` : for which file path do we change the `workbenchColor`. It is an object with the following properties:
         * `workbenchColor` : an object with the color names and values to change
+        * `whenDirty` : an object with the color names and values to change when the file is dirty (not saved).
     * `byLanguageId` : on object where the key is a [languageId](https://code.visualstudio.com/docs/languages/identifiers)
         * the value for a languageId is an object with the following properties:
             * `workbenchColor` : an object with the color names and values to change
+            * `whenDirty` : an object with the color names and values to change when the file is dirty (not saved).
 
 All properties are optional.
 
@@ -19,6 +22,30 @@ The file path Regular Expression is searched in the full file path. You just nee
 You can change any color that the setting `workbench.colorCustomizations` allows. One or more. The colors to change are specified in the setting `whenFile.change` in `settings.json`.
 
 Be aware that the `whenFile.change` setting is merged over all the settings files that apply for the current file.
+
+## `whenDirty`
+
+(experimental) If you don't define the `whenDirty` property the extension should behave as before
+
+The `whenDirty` property is designed to be used to change colors of things that linters and languages show: the error, warning, information squiggles. Sometimes a lot of errors are generated when you type. With this property you can make the squiggles transparent until you save the file. (`editorError.foreground`, `editorWarning.foreground`, `editorInfo.foreground`)
+
+### Example `whenDirty`
+
+The C# language server does not have the option to postpone linting till the file is saved. To make the error squiggles almost transparent (`20`) use the following configuration setting:
+
+```
+  "whenFile.change": {
+    "byLanguageId": {
+      "csharp": {
+        "whenDirty": {
+          "editorError.foreground": "#ff000020",
+          "editorWarning.foreground": "#ff000020",
+          "editorInfo.foreground": "#ff000020"
+        }
+      }
+    }
+  }
+```
 
 # How to use
 
@@ -117,3 +144,4 @@ Change `client/.vscode/settings.json`
 # TODO
 
 * change the theme based on file location
+* add a timer to remove the dirty colors when you haven't typed for x seconds
