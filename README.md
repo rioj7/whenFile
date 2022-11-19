@@ -21,6 +21,8 @@ The file path Regular Expression is searched in the full file path. You just nee
 
 You can change any color that the setting `workbench.colorCustomizations` allows. One or more. The colors to change are specified in the setting `whenFile.change` in `settings.json`.
 
+If the file is not part of an open workspace it uses the settings of the first open workspace.
+
 Be aware that the `whenFile.change` setting is merged over all the settings files that apply for the current file.
 
 ## `whenDirty`
@@ -142,6 +144,8 @@ Change `client/.vscode/settings.json`
 ```
 
 ## Release Notes
+
+### v0.5.0 also change settings for files outside a workspace
 
 ### v0.4.0 `whenDirty` - change colors when the file is dirty (not saved)
 

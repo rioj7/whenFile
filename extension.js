@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const path = require('path');
+// const path = require('path');
 
 function activate(context) {
   const extensionShortName = 'whenFile';
@@ -87,9 +87,10 @@ function activate(context) {
     }
     let document = editor.document;
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (!workspaceFolder) return;
+    if (vscode.workspace.workspaceFolders === undefined) return; // there has to be a workspace open to store changed settings
+    let configScope = workspaceFolder ? workspaceFolder.uri : vscode.workspace.workspaceFolders[0].uri;
     editorPath = document.uri.path;
-    let config = vscode.workspace.getConfiguration(extensionShortName, workspaceFolder.uri);
+    let config = vscode.workspace.getConfiguration(extensionShortName, configScope);
     let change = config.get('change');
     let newChange = {};
     newChange[themeName] = getProperty(change, themeName);
