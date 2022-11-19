@@ -99,7 +99,7 @@ function activate(context) {
     let languageId = document.languageId;
     for (const key in change) {
       if (!change.hasOwnProperty(key)) { continue; }
-      if (key === themeName || key === workbenchColorName) { continue; }
+      if (key === themeName || key === workbenchColorName || key === workbenchColorNameWhenDirty) { continue; }
       if (key === byLanguageIdName) {
         newChange = updateChange(newChange, getProperty(change[key], languageId));
         continue;
