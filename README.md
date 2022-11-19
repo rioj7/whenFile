@@ -10,7 +10,7 @@ If you have sub projects in your workspace (`client` and `server`) or a Multi Ro
     * `file path Regular Expression` : for which file path do we change the `workbenchColor`. It is an object with the following properties:
         * `workbenchColor` : an object with the color names and values to change
         * `whenDirty` : an object with the color names and values to change when the file is dirty (not saved).
-    * `byLanguageId` : on object where the key is a [languageId](https://code.visualstudio.com/docs/languages/identifiers)
+    * `byLanguageId` : an object where the key is a [languageId](https://code.visualstudio.com/docs/languages/identifiers)
         * the value for a languageId is an object with the following properties:
             * `workbenchColor` : an object with the color names and values to change
             * `whenDirty` : an object with the color names and values to change when the file is dirty (not saved).
@@ -25,7 +25,7 @@ Be aware that the `whenFile.change` setting is merged over all the settings file
 
 ## `whenDirty`
 
-(experimental) If you don't define the `whenDirty` property the extension should behave as before
+(experimental) If you don't define the `whenDirty` property the extension should behave as before.
 
 The `whenDirty` property is designed to be used to change colors of things that linters and languages show: the error, warning, information squiggles. Sometimes a lot of errors are generated when you type. With this property you can make the squiggles transparent until you save the file. (`editorError.foreground`, `editorWarning.foreground`, `editorInfo.foreground`)
 
@@ -140,6 +140,16 @@ Change `client/.vscode/settings.json`
     }
   }
 ```
+
+## Release Notes
+
+### v0.4.0 `whenDirty` - change colors when the file is dirty (not saved)
+
+### v0.3.0 update once per editor, keep other workbench customisations
+
+### v0.2.0 byLanguageId, change colors based on languageId
+
+### v0.1.0 change colors based on file path
 
 # TODO
 
