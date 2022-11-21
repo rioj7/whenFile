@@ -143,18 +143,6 @@ Change `client/.vscode/settings.json`
   }
 ```
 
-## Release Notes
-
-### v0.5.0 also change settings for files outside a workspace
-
-### v0.4.0 `whenDirty` - change colors when the file is dirty (not saved)
-
-### v0.3.0 update once per editor, keep other workbench customisations
-
-### v0.2.0 byLanguageId, change colors based on languageId
-
-### v0.1.0 change colors based on file path
-
 # TODO
 
 * change the theme based on file location

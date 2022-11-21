@@ -4,7 +4,7 @@
   "description": "Change color or theme based on file path",
   "publisher": "rioj7",
   "license": "MIT",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "engines": {"vscode": "^1.55.0"},
   "categories": ["Other"],
   "keywords": ["change","theme","color","files","multi-root ready","dirty"],
