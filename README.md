@@ -21,7 +21,7 @@ The file path Regular Expression is searched in the full file path. You just nee
 
 You can change any color that the setting `workbench.colorCustomizations` allows. One or more. The colors to change are specified in the setting `whenFile.change` in `settings.json`.
 
-If the file is not part of an open workspace it uses the settings of the first open workspace.
+If the file is not part of an open workspace it uses the settings found in **User**, **Multi Root Workspace** (`.code-workspace` file) and the first open **Workspace Folder**.
 
 Be aware that the `whenFile.change` setting is merged over all the settings files that apply for the current file.
 
